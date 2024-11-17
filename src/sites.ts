@@ -36,8 +36,8 @@ export const greynoiseSearch: searchSite = {
     description: 'Provides context and reputation for IP addresses involved in internet scanning.',
     site: GREYNOISE_SEARCH,
     ip: true, 
-    hash: true, 
-    domain: true, 
+    hash: false, 
+    domain: false, 
     multisearch: false, 
     enabled: true 
 }
