@@ -8,6 +8,8 @@ export const CENSYS_SEARCH = 'https://search.censys.io/hosts/%s';
 export const DDG_SEARCH = 'https://duckduckgo.com/?q="%s"';
 export const BAZAAR_SEARCH_SHA256 = 'https://bazaar.abuse.ch/browse.php?search=sha256%3A%s';
 export const BAZAAR_SEARCH_MD5 = 'https://bazaar.abuse.ch/browse.php?search=md5%3A%s';
+export const GREYNOISE_SEARCH = 'https://viz.greynoise.io/ip/%s';
+
 
 export interface ParsedIndicators {
     title: string;
@@ -26,6 +28,18 @@ export interface searchSite {
     multisearch: boolean
     separator?: string
     enabled: boolean
+}
+
+export const greynoiseSearch: searchSite = {
+    name: 'GreyNoise',
+    shortName: 'GN',
+    description: 'Provides context and reputation for IP addresses involved in internet scanning.',
+    site: GREYNOISE_SEARCH,
+    ip: true, 
+    hash: false, 
+    domain: false, 
+    multisearch: false, 
+    enabled: true 
 }
 
 export const vtSearch: searchSite = {
@@ -125,4 +139,4 @@ export const spurSearch: searchSite = {
     enabled: false
 }
 
-export const defaultSites: searchSite[] = [vtSearch, ipdbSearch, googleSearch, ddgSearch, urlscanSearch, shodanSearch, censysSearch, spurSearch];
+export const defaultSites: searchSite[] = [vtSearch, ipdbSearch, googleSearch, ddgSearch, urlscanSearch, shodanSearch, censysSearch, spurSearch, greynoiseSearch];
