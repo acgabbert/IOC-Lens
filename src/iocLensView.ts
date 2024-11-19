@@ -1,8 +1,9 @@
 import { ItemView, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
-import { DOMAIN_REGEX, extractMatches, IP_REGEX, IPv6_REGEX, isLocalIpv4, MD5_REGEX, type ParsedIndicators, refangIoc, removeArrayDuplicates, type searchSite, SHA256_REGEX, validateDomains } from "obsidian-cyber-utils";
+import { DOMAIN_REGEX, extractMatches, IP_REGEX, IPv6_REGEX, isLocalIpv4, MD5_REGEX, type ParsedIndicators, refangIoc, removeArrayDuplicates, SHA256_REGEX, validateDomains } from "obsidian-cyber-utils";
 
 import Sidebar from "./components/Sidebar.svelte";
 import type IocLens from "main";
+import type { SearchSite } from "./sites";
 
 export const DEFAULT_VIEW_TYPE = "ioc-lens-view";
 
@@ -78,12 +79,12 @@ export class IndicatorSidebar extends ItemView {
         const ips: ParsedIndicators = {
             title: "IPs",
             items: extractMatches(fileContent, this.ipRegex),
-            sites: this.plugin?.settings?.searchSites.filter((x: searchSite) => x.enabled && x.ip)
+            sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ip)
         }
         const domains: ParsedIndicators = {
             title: "Domains",
             items: extractMatches(fileContent, this.domainRegex),
-            sites: this.plugin?.settings?.searchSites.filter((x: searchSite) => x.enabled && x.domain)
+            sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.domain)
         }
         let sha256Hashes: ParsedIndicators | null = null;
         let md5Hashes: ParsedIndicators | null = null;
@@ -91,25 +92,25 @@ export class IndicatorSidebar extends ItemView {
             sha256Hashes = {
                 title: "Hashes (SHA256)",
                 items: extractMatches(fileContent, this.sha256Regex),
-                sites: this.plugin?.settings?.searchSites.filter((x: searchSite) => x.enabled && x.hash)
+                sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.hash)
             }
         }
         if (this.plugin.settings.md5Enabled) {
             md5Hashes = {
                 title: "Hashes (MD5)",
                 items: extractMatches(fileContent, this.md5Regex),
-                sites: this.plugin?.settings?.searchSites.filter((x: searchSite) => x.enabled && x.hash)
+                sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.hash)
             }
         }
         const privateIps: ParsedIndicators = {
             title: "IPs (Private)",
             items: [],
-            sites: this.plugin?.settings?.searchSites.filter((x: searchSite) => x.enabled && x.ip)
+            sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ip)
         }
         const ipv6: ParsedIndicators = {
             title: "IPv6",
             items: extractMatches(fileContent, this.ipv6Regex),
-            sites: this.plugin?.settings?.searchSites.filter((x: searchSite) => x.enabled && x.ip)
+            sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ipv6)
         }
         if (this.plugin?.validTld) 
             domains.items = validateDomains(domains.items, this.plugin.validTld);

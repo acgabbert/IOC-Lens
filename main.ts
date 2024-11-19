@@ -2,7 +2,7 @@ import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
-import { defaultSites, type searchSite } from 'src/sites';
+import { defaultSites, type SearchSite } from 'src/sites';
 
 // Remember to rename these classes and interfaces!
 
@@ -50,7 +50,7 @@ export default class IocLens extends CyberPlugin {
 	}
 
 	updateSites() {
-		defaultSites.forEach(async (site: searchSite) => {
+		defaultSites.forEach(async (site: SearchSite) => {
 			const settingSite = this.settings.searchSites.find(obj => obj.name === site.name);
 			const enabled = settingSite?.enabled ?? site.enabled;
 			const index = this.settings.searchSites.findIndex(obj => obj.name === site.name);
