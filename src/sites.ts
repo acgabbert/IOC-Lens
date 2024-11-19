@@ -23,6 +23,7 @@ export interface SearchSite {
     description?: string
     site: string
     ip: boolean
+    ipv6?: boolean
     hash: boolean
     domain: boolean
     multisearch: boolean
@@ -36,6 +37,7 @@ export const greynoiseSearch: SearchSite = {
     description: 'Provides context and reputation for IP addresses involved in internet scanning.',
     site: GREYNOISE_SEARCH,
     ip: true,
+    ipv6: false,
     hash: false,
     domain: false,
     multisearch: false,
@@ -48,6 +50,7 @@ export const vtSearch: SearchSite = {
     description: 'VirusTotal inspects items with over 70 antivirus scanners and URL/domain blocklisting services.',
     site: VT_SEARCH,
     ip: true,
+    ipv6: true,
     hash: true,
     domain: true,
     multisearch: true,
@@ -61,6 +64,7 @@ export const ipdbSearch: SearchSite = {
     description: 'Check an IP address, domain name, or subnet to see if it\'s been reported.',
     site: IPDB_SEARCH,
     ip: true,
+    ipv6: true,
     hash: false,
     domain: true,
     multisearch: false,
@@ -73,6 +77,7 @@ export const ddgSearch: SearchSite = {
     description: 'A general, privacy-focused web search engine.',
     site: DDG_SEARCH,
     ip: true,
+    ipv6: true,
     hash: true,
     domain: true,
     multisearch: false,
@@ -85,6 +90,7 @@ export const googleSearch: SearchSite = {
     description: 'A general web search engine.',
     site: GOOGLE_SEARCH,
     ip: true,
+    ipv6: true,
     hash: true,
     domain: true,
     multisearch: false,
@@ -97,6 +103,7 @@ export const urlscanSearch: SearchSite = {
     description: 'A free service to scan and analyze websites.',
     site: URLSCAN_SEARCH,
     ip: true,
+    ipv6: false,
     hash: false,
     domain: true,
     multisearch: false,
@@ -109,6 +116,7 @@ export const shodanSearch: SearchSite = {
     description: 'A search engine for internet-connected devices.',
     site: SHODAN_SEARCH,
     ip: true,
+    ipv6: true,
     hash: false,
     domain: false,
     multisearch: false,
@@ -121,6 +129,7 @@ export const censysSearch: SearchSite = {
     description: 'A database of internet intelligence.',
     site: CENSYS_SEARCH,
     ip: true,
+    ipv6: true,
     hash: false,
     domain: true,
     multisearch: false,
@@ -133,6 +142,7 @@ export const spurSearch: SearchSite = {
     description: 'Identifies VPN entry/exit, residential proxies, geo concentration, and more. Free account required to retrieve results.',
     site: SPUR_SEARCH,
     ip: true,
+    ipv6: true,
     hash: false,
     domain: false,
     multisearch: false,
