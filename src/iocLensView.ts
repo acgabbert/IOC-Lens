@@ -110,7 +110,7 @@ export class IndicatorSidebar extends ItemView {
         const ipv6: ParsedIndicators = {
             title: "IPv6",
             items: extractMatches(fileContent, this.ipv6Regex),
-            sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ip)
+            sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ipv6)
         }
         if (this.plugin?.validTld) 
             domains.items = validateDomains(domains.items, this.plugin.validTld);
