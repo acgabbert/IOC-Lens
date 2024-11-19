@@ -2,7 +2,7 @@ import IocLens from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { type CyberPluginSettings } from "obsidian-cyber-utils";
 
-import { defaultSites, type searchSite } from "./sites";
+import { defaultSites, type SearchSite } from "./sites";
 import { DEFAULT_VIEW_TYPE } from "./iocLensView";
 
 export interface IocLensSettings extends CyberPluginSettings {
@@ -33,7 +33,7 @@ export class IocLensSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
             .setName('Enabled search engines')
             .setHeading();
-        defaultSites.forEach((site: searchSite) => {
+        defaultSites.forEach((site: SearchSite) => {
                 const settingSite = this.plugin.settings.searchSites.find(obj => obj.name === site.name);
                 const enabled = settingSite?.enabled ?? site.enabled;
                 let desc = site.description ? site.description : "";

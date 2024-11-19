@@ -14,10 +14,10 @@ export const GREYNOISE_SEARCH = 'https://viz.greynoise.io/ip/%s';
 export interface ParsedIndicators {
     title: string;
     items: string[];
-    sites: searchSite[] | undefined;
+    sites: SearchSite[] | undefined;
 }
 
-export interface searchSite {
+export interface SearchSite {
     name: string
     shortName: string
     description?: string
@@ -30,19 +30,19 @@ export interface searchSite {
     enabled: boolean
 }
 
-export const greynoiseSearch: searchSite = {
+export const greynoiseSearch: SearchSite = {
     name: 'GreyNoise',
     shortName: 'GN',
     description: 'Provides context and reputation for IP addresses involved in internet scanning.',
     site: GREYNOISE_SEARCH,
-    ip: true, 
-    hash: false, 
-    domain: false, 
-    multisearch: false, 
-    enabled: true 
+    ip: true,
+    hash: false,
+    domain: false,
+    multisearch: false,
+    enabled: true
 }
 
-export const vtSearch: searchSite = {
+export const vtSearch: SearchSite = {
     name: 'VirusTotal',
     shortName: 'VT',
     description: 'VirusTotal inspects items with over 70 antivirus scanners and URL/domain blocklisting services.',
@@ -55,7 +55,7 @@ export const vtSearch: searchSite = {
     enabled: true
 }
 
-export const ipdbSearch: searchSite = {
+export const ipdbSearch: SearchSite = {
     name: 'AbuseIPDB',
     shortName: 'IPDB',
     description: 'Check an IP address, domain name, or subnet to see if it\'s been reported.',
@@ -67,7 +67,7 @@ export const ipdbSearch: searchSite = {
     enabled: true
 }
 
-export const ddgSearch: searchSite = {
+export const ddgSearch: SearchSite = {
     name: 'DuckDuckGo',
     shortName: 'DuckDuckGo',
     description: 'A general, privacy-focused web search engine.',
@@ -79,7 +79,7 @@ export const ddgSearch: searchSite = {
     enabled: false
 }
 
-export const googleSearch: searchSite = {
+export const googleSearch: SearchSite = {
     name: 'Google',
     shortName: 'Google',
     description: 'A general web search engine.',
@@ -91,7 +91,7 @@ export const googleSearch: searchSite = {
     enabled: true
 }
 
-export const urlscanSearch: searchSite = {
+export const urlscanSearch: SearchSite = {
     name: 'URLScan',
     shortName: 'URLScan',
     description: 'A free service to scan and analyze websites.',
@@ -103,7 +103,7 @@ export const urlscanSearch: searchSite = {
     enabled: false
 }
 
-export const shodanSearch: searchSite = {
+export const shodanSearch: SearchSite = {
     name: 'Shodan',
     shortName: 'Shodan',
     description: 'A search engine for internet-connected devices.',
@@ -115,7 +115,7 @@ export const shodanSearch: searchSite = {
     enabled: false
 }
 
-export const censysSearch: searchSite = {
+export const censysSearch: SearchSite = {
     name: 'Censys',
     shortName: 'Censys',
     description: 'A database of internet intelligence.',
@@ -127,7 +127,7 @@ export const censysSearch: searchSite = {
     enabled: false
 }
 
-export const spurSearch: searchSite = {
+export const spurSearch: SearchSite = {
     name: 'Spur',
     shortName: 'Spur',
     description: 'Identifies VPN entry/exit, residential proxies, geo concentration, and more. Free account required to retrieve results.',
@@ -139,4 +139,14 @@ export const spurSearch: searchSite = {
     enabled: false
 }
 
-export const defaultSites: searchSite[] = [vtSearch, ipdbSearch, googleSearch, ddgSearch, urlscanSearch, shodanSearch, censysSearch, spurSearch, greynoiseSearch];
+export const defaultSites: SearchSite[] = [
+    vtSearch,
+    ipdbSearch,
+    googleSearch,
+    ddgSearch,
+    urlscanSearch,
+    shodanSearch,
+    censysSearch,
+    spurSearch,
+    greynoiseSearch
+];
