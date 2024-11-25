@@ -4,10 +4,6 @@ import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } fr
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
 import { defaultSites, type SearchSite } from 'src/sites';
 
-// Remember to rename these classes and interfaces!
-
-
-
 export default class IocLens extends CyberPlugin {
 	declare settings: IocLensSettings;
 
@@ -46,7 +42,7 @@ export default class IocLens extends CyberPlugin {
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
+		super.saveSettings();
 	}
 
 	updateSites() {
