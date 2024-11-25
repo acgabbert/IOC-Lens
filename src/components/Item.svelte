@@ -1,9 +1,10 @@
 <script lang="ts">
     import Button from "./Button.svelte";
-	import type { searchSite } from "obsidian-cyber-utils";
+	import type { SearchSite } from "obsidian-cyber-utils";
 
     export let item: string;
-    export let buttons: searchSite[] | undefined;
+    export let buttons: SearchSite[] | undefined;
+    console.log(buttons);
 </script>
 
 <div class="sidebar-list-item tree-item-self">
@@ -12,7 +13,7 @@
 {#if buttons}
 <div class="grid-container">
     {#each buttons as button}
-        <Button href={button.site.replace('%s', item)} title={button.shortName}/>
+        <Button href={button.site.replace('%s', item)} title={button.name} content={button.shortName}/>
     {/each}
 </div>
 {/if}

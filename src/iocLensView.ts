@@ -1,5 +1,5 @@
 import { ItemView, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
-import { DOMAIN_REGEX, extractMatches, IP_REGEX, IPv6_REGEX, isLocalIpv4, MD5_REGEX, type ParsedIndicators, refangIoc, removeArrayDuplicates, SHA256_REGEX, validateDomains } from "obsidian-cyber-utils";
+import { isLocalIpv4, Matcher, type ParsedIndicators, refangIoc, removeArrayDuplicates, validateDomains } from "obsidian-cyber-utils";
 
 import Sidebar from "./components/Sidebar.svelte";
 import type IocLens from "main";
@@ -17,13 +17,7 @@ export class IndicatorSidebar extends ItemView {
     ipExclusions: string[] | undefined;
     domainExclusions: string[] | undefined;
     hashExclusions: string[] | undefined;
-    
-    ipRegex = IP_REGEX;
-    sha256Regex = SHA256_REGEX;
-    md5Regex = MD5_REGEX;
-    domainRegex = DOMAIN_REGEX;
-    ipv6Regex = IPv6_REGEX;
-    
+
     constructor(leaf: WorkspaceLeaf, plugin: IocLens) {
         super(leaf);
         this.iocs = [];
@@ -32,6 +26,7 @@ export class IndicatorSidebar extends ItemView {
         this.icon = 'scan-eye';
         this.registerActiveFileListener();
         this.registerOpenFile();
+        this.registerSettingsListener();
     }
 
     getViewType(): string {
@@ -40,6 +35,17 @@ export class IndicatorSidebar extends ItemView {
 
     getDisplayText(): string {
         return "IOC Lens view";
+    }
+
+    registerSettingsListener() {
+        if (!this.plugin) return;
+        this.registerEvent(
+            this.plugin.on('settings-change', async () => {
+                const file = this.app.workspace.getActiveFile();
+                if (!file) return;
+                await this.parseIndicators(file);
+            })
+        );
     }
 
     registerActiveFileListener() {
@@ -78,12 +84,12 @@ export class IndicatorSidebar extends ItemView {
         this.iocs = [];
         const ips: ParsedIndicators = {
             title: "IPs",
-            items: extractMatches(fileContent, this.ipRegex),
+            items: Matcher.findAll(fileContent, 'IPv4'),
             sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ip)
         }
         const domains: ParsedIndicators = {
             title: "Domains",
-            items: extractMatches(fileContent, this.domainRegex),
+            items: Matcher.findAll(fileContent, 'Domain'),
             sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.domain)
         }
         let sha256Hashes: ParsedIndicators | null = null;
@@ -91,14 +97,14 @@ export class IndicatorSidebar extends ItemView {
         if (this.plugin.settings.sha256Enabled) {
             sha256Hashes = {
                 title: "Hashes (SHA256)",
-                items: extractMatches(fileContent, this.sha256Regex),
+                items: Matcher.findAll(fileContent, 'SHA256'),
                 sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.hash)
             }
         }
         if (this.plugin.settings.md5Enabled) {
             md5Hashes = {
                 title: "Hashes (MD5)",
-                items: extractMatches(fileContent, this.md5Regex),
+                items: Matcher.findAll(fileContent, 'MD5'),
                 sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.hash)
             }
         }
@@ -109,7 +115,7 @@ export class IndicatorSidebar extends ItemView {
         }
         const ipv6: ParsedIndicators = {
             title: "IPv6",
-            items: extractMatches(fileContent, this.ipv6Regex),
+            items: Matcher.findAll(fileContent, 'IPv6'),
             sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ipv6)
         }
         if (this.plugin?.validTld) 
