@@ -51,6 +51,7 @@
                 <Button 
                     href={getMultisearchLink(site.shortName)}
                     title={`Search all - ${site.shortName}`}
+                    content={`Search all - ${site.shortName}`}
                 />
             {/if}
         {/each}
