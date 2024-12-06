@@ -28,6 +28,14 @@ export default class IocLens extends CyberPlugin {
 			}
 		});
 
+		this.addCommand({
+			id: 'ioc-lens-defang-selection',
+			name: 'Defang selected text',
+			callback: () => {
+				defangSelectedText();
+			}
+		});
+
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new IocLensSettingTab(this.app, this));
 	}
