@@ -3,6 +3,7 @@ import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
+import { DefangMethods, defangText } from 'src/iocUtils';
 import { defaultSites, type SearchSite } from 'src/sites';
 
 export default class IocLens extends CyberPlugin {
@@ -34,7 +35,7 @@ export default class IocLens extends CyberPlugin {
 			name: 'Defang selected text',
 			editorCallback: (editor: Editor) => {
 				const selection = editor.getSelection();
-				const replaced = defangText(selection);
+				const replaced = defangText(selection, DefangMethods.SquareBrackets);
 				editor.replaceSelection(replaced);
 			}
 		});
