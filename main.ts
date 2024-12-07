@@ -1,3 +1,4 @@
+import type { Editor } from 'obsidian';
 import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
@@ -31,8 +32,10 @@ export default class IocLens extends CyberPlugin {
 		this.addCommand({
 			id: 'ioc-lens-defang-selection',
 			name: 'Defang selected text',
-			callback: () => {
-				defangSelectedText();
+			editorCallback: (editor: Editor) => {
+				const selection = editor.getSelection();
+				const replaced = defangText(selection);
+				editor.replaceSelection(replaced);
 			}
 		});
 
