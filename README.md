@@ -18,6 +18,7 @@ To activate IOC Lens, click the ribbon icon or use the command palette.
 
 Key features:
 - Automatic IOC extraction from your notes
+- Defang commands provided via context menu and command palette
 - Smart recognition of both standard and defanged IOCs (e.g. "evil[.]com")
 - One-click pivot buttons to search indicators across various security engines
 - Clean, organized view of all IOCs in your current note
