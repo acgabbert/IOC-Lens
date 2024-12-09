@@ -18,7 +18,7 @@ To activate IOC Lens, click the ribbon icon or use the command palette.
 
 Key features:
 - Automatic IOC extraction from your notes
-- Defang commands provided via context menu and command palette
+- Defang domains and IP addresses via context menu options or command palette
 - Smart recognition of both standard and defanged IOCs (e.g. "evil[.]com")
 - One-click pivot buttons to search indicators across various security engines
 - Clean, organized view of all IOCs in your current note
@@ -29,6 +29,13 @@ Security considerations:
 - IOCs are displayed as plaintext in the sidebar - they are never clickable links
 - All interaction with IOCs is intentional and requires explicit user action
 
+## Tips:
+[Obsidian's Developer Documentation](https://docs.obsidian.md/Reference/TypeScript+API/Command/hotkeys) recommends against plugins setting default hotkeys. However, you can bind commands to hot keys via the Obsidian settings ("Hotkeys" section). Example:
+![hotkey-example](https://raw.githubusercontent.com/acgabbert/ioc-lens/refs/heads/main/resources/hotkey-example.png)
+
+This allows you to defang IOCs with a hotkey - for example, ⌘+⇧+A.
+
+## Supported Search Engines
 IOC Lens currently supports pivots to the following resources/search engines. Pivots are configurable via toggle switches in the plugin settings.
 - [AbuseIPDB](https://www.abuseipdb.com)
 - [Censys](https://search.censys.io)
