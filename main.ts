@@ -1,4 +1,4 @@
-import type { Editor } from 'obsidian';
+import { MarkdownView, type Editor, type EventRef } from 'obsidian';
 import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
@@ -8,6 +8,7 @@ import { defaultSites, type SearchSite } from 'src/sites';
 
 export default class IocLens extends CyberPlugin {
 	declare settings: IocLensSettings;
+	private transformRef: EventRef;
 
 	async onload() {
 		await this.loadSettings();
@@ -35,17 +36,26 @@ export default class IocLens extends CyberPlugin {
 			name: 'Defang selected text',
 			editorCallback: (editor: Editor) => {
 				const selection = editor.getSelection();
-				const replaced = defangText(selection, DefangMethods.SquareBrackets);
+				const replaced = defangText(selection);
 				editor.replaceSelection(replaced);
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.transformRef = this.app.workspace.on("editor-menu", (menu) => {
+			menu.addItem((item) => {
+				item.setTitle('Defang selection')
+					.setIcon('scan-eye')
+					.onClick(() => {
+						const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+						if (!editor) return;
+						const selection = editor.getSelection();
+						const replaced = defangText(selection);
+						editor.replaceSelection(replaced);
+					})
+			})
+		})
+
 		this.addSettingTab(new IocLensSettingTab(this.app, this));
-	}
-
-	onunload() {
-
 	}
 
 	async loadSettings() {
@@ -69,5 +79,10 @@ export default class IocLens extends CyberPlugin {
 			}
 			await this.saveSettings();
 		})
+	}
+
+	onunload(): void {
+		super.onunload();
+		this.app.workspace.offref(this.transformRef);
 	}
 }
