@@ -20,7 +20,7 @@
 		"esbuild": "0.17.3",
 		"esbuild-svelte": "^0.8.2",
 		"obsidian": "latest",
-		"obsidian-cyber-utils": "0.10.1",
+		"obsidian-cyber-utils": "0.10.7",
 		"obsidian-svelte-components": "0.4.6",
 		"svelte": "4.2.19",
 		"svelte-preprocess": "^6.0.3",

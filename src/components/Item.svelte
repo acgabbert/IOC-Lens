@@ -4,7 +4,6 @@
 
     export let item: string;
     export let buttons: SearchSite[] | undefined;
-    console.log(buttons);
 </script>
 
 <div class="sidebar-list-item tree-item-self">
