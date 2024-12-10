@@ -30,7 +30,7 @@ Security considerations:
 - All interaction with IOCs is intentional and requires explicit user action
 
 ## Tips:
-[Obsidian's Developer Documentation](https://docs.obsidian.md/Reference/TypeScript+API/Command/hotkeys) recommends against plugins setting default hotkeys. However, you can bind commands to hot keys via the Obsidian settings ("Hotkeys" section). Example:
+Per the guidance in [Obsidian's Developer Documentation](https://docs.obsidian.md/Reference/TypeScript+API/Command/hotkeys), a default hotkey has not been set for any IOC Lens functions. However, you can bind commands to hot keys via the Obsidian settings ("Hotkeys" section). Example:
 ![hotkey-example](https://raw.githubusercontent.com/acgabbert/ioc-lens/refs/heads/main/resources/hotkey-example.png)
 
 This allows you to defang IOCs with a hotkey - for example, ⌘+⇧+A.
