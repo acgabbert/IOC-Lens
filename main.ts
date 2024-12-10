@@ -69,9 +69,9 @@ export default class IocLens extends CyberPlugin {
 
 	updateSites() {
 		defaultSites.forEach(async (site: SearchSite) => {
-			const settingSite = this.settings.searchSites.find(obj => obj.name === site.name);
+			const settingSite = this.settings.searchSites.find(obj => (obj.name === site.name || obj.shortName === site.shortName));
 			const enabled = settingSite?.enabled ?? site.enabled;
-			const index = this.settings.searchSites.findIndex(obj => obj.name === site.name);
+			const index = this.settings.searchSites.findIndex(obj => (obj.name === site.name || obj.shortName === site.shortName));
 			if (index >= 0) {
 				this.settings.searchSites[index] = {...site, enabled: enabled};
 			} else {
