@@ -1,10 +1,11 @@
 <script lang="ts">
     export let title: string;
+	export let content: string;
     export let href: string;
 </script>
 
 <a {href}>
-	<button>{title}</button>
+	<button {title}>{content}</button>
 </a>
 
 <style>

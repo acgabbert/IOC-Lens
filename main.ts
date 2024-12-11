@@ -1,15 +1,14 @@
+import { MarkdownView, type Editor, type EventRef } from 'obsidian';
 import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
+import { DefangMethods, defangText } from 'src/iocUtils';
 import { defaultSites, type SearchSite } from 'src/sites';
-
-// Remember to rename these classes and interfaces!
-
-
 
 export default class IocLens extends CyberPlugin {
 	declare settings: IocLensSettings;
+	private transformRef: EventRef;
 
 	async onload() {
 		await this.loadSettings();
@@ -32,12 +31,31 @@ export default class IocLens extends CyberPlugin {
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.addCommand({
+			id: 'ioc-lens-defang-selection',
+			name: 'Defang selected text',
+			editorCallback: (editor: Editor) => {
+				const selection = editor.getSelection();
+				const replaced = defangText(selection);
+				editor.replaceSelection(replaced);
+			}
+		});
+
+		this.transformRef = this.app.workspace.on("editor-menu", (menu) => {
+			menu.addItem((item) => {
+				item.setTitle('Defang selection')
+					.setIcon('scan-eye')
+					.onClick(() => {
+						const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+						if (!editor) return;
+						const selection = editor.getSelection();
+						const replaced = defangText(selection);
+						editor.replaceSelection(replaced);
+					})
+			})
+		})
+
 		this.addSettingTab(new IocLensSettingTab(this.app, this));
-	}
-
-	onunload() {
-
 	}
 
 	async loadSettings() {
@@ -46,14 +64,14 @@ export default class IocLens extends CyberPlugin {
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
+		super.saveSettings();
 	}
 
 	updateSites() {
 		defaultSites.forEach(async (site: SearchSite) => {
-			const settingSite = this.settings.searchSites.find(obj => obj.name === site.name);
+			const settingSite = this.settings.searchSites.find(obj => (obj.name === site.name || obj.shortName === site.shortName));
 			const enabled = settingSite?.enabled ?? site.enabled;
-			const index = this.settings.searchSites.findIndex(obj => obj.name === site.name);
+			const index = this.settings.searchSites.findIndex(obj => (obj.name === site.name || obj.shortName === site.shortName));
 			if (index >= 0) {
 				this.settings.searchSites[index] = {...site, enabled: enabled};
 			} else {
@@ -61,5 +79,10 @@ export default class IocLens extends CyberPlugin {
 			}
 			await this.saveSettings();
 		})
+	}
+
+	onunload(): void {
+		super.onunload();
+		this.app.workspace.offref(this.transformRef);
 	}
 }

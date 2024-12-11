@@ -1,6 +1,6 @@
 {
 	"name": "ioc-lens",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "Extracts and displays security-relevant indicators such as IP addresses, domains, and file hashes to enhance your cyber security note-taking process.",
 	"main": "main.js",
 	"scripts": {
@@ -20,7 +20,7 @@
 		"esbuild": "0.17.3",
 		"esbuild-svelte": "^0.8.2",
 		"obsidian": "latest",
-		"obsidian-cyber-utils": "0.8.5",
+		"obsidian-cyber-utils": "0.10.7",
 		"obsidian-svelte-components": "0.4.6",
 		"svelte": "4.2.19",
 		"svelte-preprocess": "^6.0.3",

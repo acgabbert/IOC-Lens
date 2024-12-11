@@ -137,7 +137,7 @@ export const censysSearch: SearchSite = {
 }
 
 export const spurSearch: SearchSite = {
-    name: 'Spur',
+    name: 'Spur Context API',
     shortName: 'Spur',
     description: 'Identifies VPN entry/exit, residential proxies, geo concentration, and more. Free account required to retrieve results.',
     site: SPUR_SEARCH,
