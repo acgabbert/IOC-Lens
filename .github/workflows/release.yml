@@ -3,24 +3,50 @@ name: Release Obsidian plugin
 on:
   push:
     tags:
-      - "*"
+      - "*.*.*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: "20.x"
+          cache: npm
 
-      - name: Build plugin
+      - run: npm ci
+
+      - name: Check source and build plugin
+        run: npm run check
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Verify release metadata
+        run: npm run verify:release -- "${GITHUB_REF_NAME}"
+
+      - name: Verify release commit is on main
         run: |
-          npm install
-          npm run build
+          git fetch origin main
+          git merge-base --is-ancestor "${GITHUB_SHA}" FETCH_HEAD
+
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            main.js
+            manifest.json
 
       - name: Create release
         env:
@@ -30,5 +56,6 @@ jobs:
 
           gh release create "$tag" \
             --title="$tag" \
+            --generate-notes \
             --draft \
             main.js manifest.json

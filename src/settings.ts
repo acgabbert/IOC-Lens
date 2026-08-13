@@ -1,14 +1,10 @@
 import IocLens from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { type CyberPluginSettings } from "obsidian-cyber-utils";
 
 import { defaultSites, type SearchSite } from "./sites";
-import { DEFAULT_VIEW_TYPE } from "./iocLensView";
+import type { IocLensSettings } from "./settingsData";
 
-export interface IocLensSettings extends CyberPluginSettings {
-    sha256Enabled: boolean,
-    md5Enabled: boolean
-}
+export type { IocLensSettings } from "./settingsData";
 
 export const IOC_LENS_DEFAULT_SETTINGS: IocLensSettings = {
 	validTld: [],
@@ -55,7 +51,6 @@ export class IocLensSettingTab extends PluginSettingTab {
                                 this.plugin.settings.searchSites.push({...site, enabled: value});
                             }
                             await this.plugin.saveSettings();
-                            this.plugin.sidebarContainers?.get(DEFAULT_VIEW_TYPE)
                         })
                     );
         });

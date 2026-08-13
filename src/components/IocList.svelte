@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ParsedIndicators } from "obsidian-cyber-utils";
+	import { buildMultisearchUrl, type ParsedIndicators } from "../sites";
     
     import Item from "./Item.svelte";
 	import Button from "./Button.svelte";
@@ -11,20 +11,8 @@
     $: {
         multisearchLinks.clear();
         indicatorList.sites?.forEach((site) => {
-            if (site.multisearch && indicatorList.items.length > 1) {
-                indicatorList.items.forEach((item) => {
-                    if (!multisearchLinks.has(site.shortName)) {
-                        multisearchLinks.set(site.shortName, site.site.replace('%s', item));
-                    } else {
-                        const url = multisearchLinks.get(site.shortName);
-                        if (!url) {
-                            multisearchLinks.set(site.shortName, site.site.replace('%s', item));
-                        } else if (!url.includes(item)) {
-                            multisearchLinks.set(site.shortName, url + site.separator + item);
-                        }
-                    }
-                })
-            }
+            const url = buildMultisearchUrl(site, indicatorList.items);
+            if (url) multisearchLinks.set(site.shortName, url);
         });
     }
 
