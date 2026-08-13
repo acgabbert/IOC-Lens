@@ -16,7 +16,7 @@ export default class IocLens extends Plugin {
 		
 		// retrieve valid top-level domain identifiers from IANA
 		const fetchedTlds = await fetchValidTlds();
-		this.validTld = fetchedTlds ?? this.settings.validTld;
+		this.validTld = fetchedTlds ?? (this.settings.validTld.length > 0 ? this.settings.validTld : null);
 		if (fetchedTlds) {
 			this.settings.validTld = fetchedTlds;
 			await this.saveSettings();
