@@ -4,6 +4,7 @@ import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } fr
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
 import { defangText } from 'src/iocUtils';
 import { defaultSites } from 'src/sites';
+import { normalizeSettings } from 'src/settingsData';
 import { fetchValidTlds } from 'src/tlds';
 
 export default class IocLens extends Plugin {
@@ -72,7 +73,7 @@ export default class IocLens extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, IOC_LENS_DEFAULT_SETTINGS, await this.loadData());
+		this.settings = normalizeSettings(await this.loadData(), IOC_LENS_DEFAULT_SETTINGS);
 		await this.updateSites();
 	}
 

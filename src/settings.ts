@@ -2,13 +2,9 @@ import IocLens from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
 import { defaultSites, type SearchSite } from "./sites";
+import type { IocLensSettings } from "./settingsData";
 
-export interface IocLensSettings {
-    validTld: string[],
-    searchSites: SearchSite[],
-    sha256Enabled: boolean,
-    md5Enabled: boolean
-}
+export type { IocLensSettings } from "./settingsData";
 
 export const IOC_LENS_DEFAULT_SETTINGS: IocLensSettings = {
 	validTld: [],
