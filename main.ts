@@ -1,14 +1,13 @@
-import { MarkdownView, type Editor, type EventRef } from 'obsidian';
+import { MarkdownView, type Editor } from 'obsidian';
 import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
-import { DefangMethods, defangText } from 'src/iocUtils';
-import { defaultSites, type SearchSite } from 'src/sites';
+import { defangText } from 'src/iocUtils';
+import { defaultSites } from 'src/sites';
 
 export default class IocLens extends CyberPlugin {
 	declare settings: IocLensSettings;
-	private transformRef: EventRef;
 
 	async onload() {
 		await this.loadSettings();
@@ -19,15 +18,15 @@ export default class IocLens extends CyberPlugin {
 		
 		this.registerView(DEFAULT_VIEW_TYPE, (leaf) => new IndicatorSidebar(leaf, this));
 
-		this.addRibbonIcon('scan-eye', 'Activate IOC Lens', (evt: MouseEvent) => {
-			this.activateView(DEFAULT_VIEW_TYPE);
+		this.addRibbonIcon('scan-eye', 'Activate IOC Lens', () => {
+			void this.activateView(DEFAULT_VIEW_TYPE);
 		});
 
 		this.addCommand({
 			id: 'activate-ioc-lens-view',
 			name: 'Activate IOC view',
 			callback: () => {
-				this.activateView(DEFAULT_VIEW_TYPE);
+				void this.activateView(DEFAULT_VIEW_TYPE);
 			}
 		});
 
@@ -41,7 +40,7 @@ export default class IocLens extends CyberPlugin {
 			}
 		});
 
-		this.transformRef = this.app.workspace.on("editor-menu", (menu) => {
+		this.registerEvent(this.app.workspace.on("editor-menu", (menu) => {
 			menu.addItem((item) => {
 				item.setTitle('Defang selection')
 					.setIcon('scan-eye')
@@ -51,24 +50,24 @@ export default class IocLens extends CyberPlugin {
 						const selection = editor.getSelection();
 						const replaced = defangText(selection);
 						editor.replaceSelection(replaced);
-					})
-			})
-		})
+					});
+			});
+		}));
 
 		this.addSettingTab(new IocLensSettingTab(this.app, this));
 	}
 
 	async loadSettings() {
 		this.settings = Object.assign({}, IOC_LENS_DEFAULT_SETTINGS, await this.loadData());
-		this.updateSites();
+		await this.updateSites();
 	}
 
 	async saveSettings() {
-		super.saveSettings();
+		await super.saveSettings();
 	}
 
-	updateSites() {
-		defaultSites.forEach(async (site: SearchSite) => {
+	async updateSites() {
+		for (const site of defaultSites) {
 			const settingSite = this.settings.searchSites.find(obj => (obj.name === site.name || obj.shortName === site.shortName));
 			const enabled = settingSite?.enabled ?? site.enabled;
 			const index = this.settings.searchSites.findIndex(obj => (obj.name === site.name || obj.shortName === site.shortName));
@@ -77,12 +76,7 @@ export default class IocLens extends CyberPlugin {
 			} else {
 				this.settings.searchSites.push({...site, enabled: enabled});
 			}
-			await this.saveSettings();
-		})
-	}
-
-	onunload(): void {
-		super.onunload();
-		this.app.workspace.offref(this.transformRef);
+		}
+		await this.saveSettings();
 	}
 }

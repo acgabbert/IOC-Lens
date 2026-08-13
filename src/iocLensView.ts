@@ -40,10 +40,10 @@ export class IndicatorSidebar extends ItemView {
     registerSettingsListener() {
         if (!this.plugin) return;
         this.registerEvent(
-            this.plugin.on('settings-change', async () => {
+            this.plugin.on('settings-change', () => {
                 const file = this.app.workspace.getActiveFile();
                 if (!file) return;
-                await this.parseIndicators(file);
+                void this.parseIndicators(file);
             })
         );
     }
@@ -51,10 +51,10 @@ export class IndicatorSidebar extends ItemView {
     registerActiveFileListener() {
         if (!this.plugin) return;
         this.registerEvent(
-            this.plugin.app.vault.on('modify', async (file: TAbstractFile) => {
+            this.plugin.app.vault.on('modify', (file: TAbstractFile) => {
                 if (!this.plugin) return;
                 if (file === this.plugin.app.workspace.getActiveFile() && file instanceof TFile) {
-                    await this.parseIndicators(file);
+                    void this.parseIndicators(file);
                 }
             })
         );
@@ -62,9 +62,9 @@ export class IndicatorSidebar extends ItemView {
 
     registerOpenFile() {
         this.registerEvent(
-            this.app.workspace.on('file-open', async (file: TFile | null) => {
+            this.app.workspace.on('file-open', (file: TFile | null) => {
                 if (file && file === this.app.workspace.getActiveFile()) {
-                    await this.parseIndicators(file);
+                    void this.parseIndicators(file);
                 }
             })
         );

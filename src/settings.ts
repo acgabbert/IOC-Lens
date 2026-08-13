@@ -3,7 +3,6 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import { type CyberPluginSettings } from "obsidian-cyber-utils";
 
 import { defaultSites, type SearchSite } from "./sites";
-import { DEFAULT_VIEW_TYPE } from "./iocLensView";
 
 export interface IocLensSettings extends CyberPluginSettings {
     sha256Enabled: boolean,
@@ -55,7 +54,6 @@ export class IocLensSettingTab extends PluginSettingTab {
                                 this.plugin.settings.searchSites.push({...site, enabled: value});
                             }
                             await this.plugin.saveSettings();
-                            this.plugin.sidebarContainers?.get(DEFAULT_VIEW_TYPE)
                         })
                     );
         });

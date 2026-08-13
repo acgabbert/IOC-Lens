@@ -2,11 +2,10 @@
 /**
  * URL regular expression
  */
-const protocol = "[A-Z]+://",
-    hostname = "[-\\w]+(?:\\.\\w[-\\w]*)+",
-    port = ":\\d+",
-    path = "/[^.!,?\"<>\\[\\]{}\\s\\x7F-\\xFF]*" +
-        "(?:[.!,?]+[^.!,?\"<>\\[\\]{}\\s\\x7F-\\xFF]+)*";
+const protocol = String.raw`[A-Z]+://`,
+    hostname = String.raw`[-\w]+(?:\.\w[-\w]*)+`,
+    port = String.raw`:\d+`,
+    path = String.raw`/[^.!,?"<>[\]{}\s\x7F-\xFF]*(?:[.!,?]+[^.!,?"<>[\]{}\s\x7F-\xFF]+)*`;
 
 export const URL_REGEX = new RegExp(protocol + hostname + "(?:" + port + ")?(?:" + path + ")?", "ig");
 
@@ -71,18 +70,18 @@ export const DefangMethods: Record<string, DefangMethod> = {
 }
 
 export function defangText(text: string, method: DefangMethod = DefangMethods.SquareBrackets): string {
-    let retval = defangIp(text);
-    retval = defangURL(retval);
+    let retval = defangIp(text, method);
+    retval = defangURL(retval, method);
     return retval;
 }
 
-export function defangIp(text: string): string {
+export function defangIp(text: string, method: DefangMethod = DefangMethods.SquareBrackets): string {
     text = text.replace(IPV4_REGEX, x => {
-        return x.replace(/\./g, "[.]");
+        return x.replace(/\./g, method.dot);
     });
     text = text.replace(IPV6_REGEX, x => {
-        x = x.replace(/::/g, "[::]");
-        x = x.replace(/(?<![\[\]]):(?!\])/g, "[:]");
+        x = x.replace(/::/g, method.doubleColon ?? method.colon ?? ':');
+        x = x.replace(/(?<!\[)(?<!]):(?!])/g, method.colon ?? ':');
         return x;
     });
 
@@ -91,17 +90,15 @@ export function defangIp(text: string): string {
 
 
 
-function defangURL(text: string): string {
+function defangURL(text: string, method: DefangMethod): string {
     text = text.replace(URL_REGEX, x => {
-        x = x.replace(/\./g, "[.]");
-        x = x.replace(/http/gi, "hxxp");
-        x = x.replace(/:\/\//g, "[://]");
+        x = x.replace(/\./g, method.dot);
+        x = x.replace(/http/gi, method.http);
+        x = x.replace(/:\/\//g, method.protocolDelimiter ?? '://');
         return x;
     });
     text = text.replace(DOMAIN_REGEX, x => {
-        x = x.replace(/\./g, "[.]");
-        x = x.replace(/http/gi, "hxxp");
-        x = x.replace(/:\/\//g, "[://]");
+        x = x.replace(/\./g, method.dot);
         return x;
     });
 
