@@ -4,7 +4,7 @@ import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } fr
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
 import { defangText } from 'src/iocUtils';
 import { defaultSites } from 'src/sites';
-import { normalizeSettings } from 'src/settingsData';
+import { normalizeSettings, reconcileSearchSites } from 'src/settingsData';
 import { fetchValidTlds } from 'src/tlds';
 
 export default class IocLens extends Plugin {
@@ -68,6 +68,11 @@ export default class IocLens extends Plugin {
 		if (!fetchedTlds || this.isUnloaded) return;
 
 		this.validTld = fetchedTlds;
+		if (
+			fetchedTlds.length === this.settings.validTld.length &&
+			fetchedTlds.every((tld, index) => tld === this.settings.validTld[index])
+		) return;
+
 		this.settings.validTld = fetchedTlds;
 		await this.saveSettings();
 	}
@@ -91,16 +96,10 @@ export default class IocLens extends Plugin {
 	}
 
 	async updateSites() {
-		for (const site of defaultSites) {
-			const settingSite = this.settings.searchSites.find(obj => (obj.name === site.name || obj.shortName === site.shortName));
-			const enabled = settingSite?.enabled ?? site.enabled;
-			const index = this.settings.searchSites.findIndex(obj => (obj.name === site.name || obj.shortName === site.shortName));
-			if (index >= 0) {
-				this.settings.searchSites[index] = {...site, enabled: enabled};
-			} else {
-				this.settings.searchSites.push({...site, enabled: enabled});
-			}
-		}
+		const { searchSites, changed } = reconcileSearchSites(this.settings.searchSites, defaultSites);
+		if (!changed) return;
+
+		this.settings.searchSites = searchSites;
 		await this.saveSettings();
 	}
 }

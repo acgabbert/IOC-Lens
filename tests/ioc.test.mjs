@@ -26,7 +26,7 @@ const {
     validateDomains,
 } = await importTypeScript("../src/ioc.ts");
 
-const { normalizeSettings } = await importTypeScript("../src/settingsData.ts");
+const { normalizeSettings, reconcileSearchSites } = await importTypeScript("../src/settingsData.ts");
 
 test("finds fanged and commonly defanged IPv4 indicators", () => {
     assert.deepEqual(
@@ -114,4 +114,24 @@ test("settings normalization does not share mutable defaults", () => {
     const normalized = normalizeSettings(undefined, defaultSettings);
     normalized.searchSites[0].enabled = false;
     assert.equal(defaultSettings.searchSites[0].enabled, true);
+});
+
+test("search-site reconciliation reports unchanged settings", () => {
+    assert.deepEqual(reconcileSearchSites(defaultSettings.searchSites, defaultSettings.searchSites), {
+        searchSites: defaultSettings.searchSites,
+        changed: false,
+    });
+});
+
+test("search-site reconciliation adds defaults while preserving user choices", () => {
+    const stored = [{ ...defaultSettings.searchSites[0], enabled: false }];
+    const added = {
+        ...defaultSettings.searchSites[0],
+        name: "Added",
+        shortName: "NEW",
+    };
+    assert.deepEqual(reconcileSearchSites(stored, [defaultSettings.searchSites[0], added]), {
+        searchSites: [stored[0], added],
+        changed: true,
+    });
 });

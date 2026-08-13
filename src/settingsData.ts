@@ -55,3 +55,29 @@ export function normalizeSettings(value: unknown, defaults: IocLensSettings): Io
             : defaults.md5Enabled,
     };
 }
+
+export function reconcileSearchSites(
+    storedSites: SearchSite[],
+    defaultSites: SearchSite[],
+): { searchSites: SearchSite[]; changed: boolean } {
+    const searchSites = storedSites.map(site => ({ ...site }));
+
+    for (const defaultSite of defaultSites) {
+        const index = searchSites.findIndex(site =>
+            site.name === defaultSite.name || site.shortName === defaultSite.shortName,
+        );
+        const enabled = index >= 0 ? searchSites[index].enabled : defaultSite.enabled;
+        const reconciled = { ...defaultSite, enabled };
+
+        if (index >= 0) {
+            searchSites[index] = reconciled;
+        } else {
+            searchSites.push(reconciled);
+        }
+    }
+
+    return {
+        searchSites,
+        changed: JSON.stringify(searchSites) !== JSON.stringify(storedSites),
+    };
+}
