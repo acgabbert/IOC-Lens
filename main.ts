@@ -10,17 +10,14 @@ export default class IocLens extends Plugin {
     settings: IocLensSettings;
     validTld: string[] | null = null;
     private readonly events = new Events();
+    private isUnloaded = false;
 
 	async onload() {
 		await this.loadSettings();
-		
-		// retrieve valid top-level domain identifiers from IANA
-		const fetchedTlds = await fetchValidTlds();
-		this.validTld = fetchedTlds ?? (this.settings.validTld.length > 0 ? this.settings.validTld : null);
-		if (fetchedTlds) {
-			this.settings.validTld = fetchedTlds;
-			await this.saveSettings();
-		}
+		this.validTld = this.settings.validTld.length > 0 ? this.settings.validTld : null;
+		this.register(() => {
+			this.isUnloaded = true;
+		});
 		
 		this.registerView(DEFAULT_VIEW_TYPE, (leaf) => new IndicatorSidebar(leaf, this));
 
@@ -61,6 +58,17 @@ export default class IocLens extends Plugin {
 		}));
 
 		this.addSettingTab(new IocLensSettingTab(this.app, this));
+
+		void this.refreshValidTlds();
+	}
+
+	private async refreshValidTlds(): Promise<void> {
+		const fetchedTlds = await fetchValidTlds();
+		if (!fetchedTlds || this.isUnloaded) return;
+
+		this.validTld = fetchedTlds;
+		this.settings.validTld = fetchedTlds;
+		await this.saveSettings();
 	}
 
 	async loadSettings() {
