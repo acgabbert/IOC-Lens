@@ -1,30 +1,9 @@
-// Regex originally from https://github.com/gchq/CyberChef (Apache 2.0 License)
-/**
- * URL regular expression
- */
-const protocol = String.raw`[A-Z]+://`,
-    hostname = String.raw`[-\w]+(?:\.\w[-\w]*)+`,
-    port = String.raw`:\d+`,
-    path = String.raw`/[^.!,?"<>[\]{}\s\x7F-\xFF]*(?:[.!,?]+[^.!,?"<>[\]{}\s\x7F-\xFF]+)*`;
+import { DOMAIN_PATTERN, IPV4_PATTERN, IPV6_PATTERN, URL_PATTERN } from "./iocPatterns";
 
-export const URL_REGEX = new RegExp(protocol + hostname + "(?:" + port + ")?(?:" + path + ")?", "ig");
-
-
-/**
- * Domain name regular expression
- */
-export const DOMAIN_REGEX = /\b((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}\b/ig;
-
-/**
- * IPV4 regular expression
- */
-const IPV4_REGEX = new RegExp("(?:(?:\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d|\\d)(?:\\/\\d{1,2})?", "g");
-
-
-/**
- * IPV6 regular expression
- */
-const IPV6_REGEX = new RegExp("((?=.*::)(?!.*::.+::)(::)?([\\dA-Fa-f]{1,4}:(:|\\b)|){5}|([\\dA-Fa-f]{1,4}:){6})((([\\dA-Fa-f]{1,4}((?!\\3)::|:\\b|(?![\\dA-Fa-f])))|(?!\\2\\3)){2}|(((2[0-4]|1\\d|[1-9])?\\d|25[0-5])\\.?\\b){4})", "g");
+export const URL_REGEX = new RegExp(URL_PATTERN, "gi");
+export const DOMAIN_REGEX = new RegExp(DOMAIN_PATTERN, "gi");
+const IPV4_REGEX = new RegExp(IPV4_PATTERN, "g");
+const IPV6_REGEX = new RegExp(IPV6_PATTERN, "gi");
 
 
 export interface DefangMethod {

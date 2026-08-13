@@ -1,32 +1,12 @@
-// Patterns adapted from obsidian-cyber-utils, originally authored for IOC Lens.
-const ipv4Octet = "(?:25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
-const ipv6Octet = "[0-9a-fA-F]{1,4}";
+import {
+    DEFANGED_DOMAIN_PATTERN,
+    DEFANGED_IPV4_PATTERN,
+    DEFANGED_IPV6_PATTERN,
+} from "./iocPatterns";
 
-function possiblyDefanged(value: string): string {
-    return String.raw`[\[\(\\]?${value}[\]\)]?`;
-}
-
-const IPV4_REGEX = new RegExp(
-    String.raw`(?:%[0-9a-fA-F]{2})?(?=\b|^)(` +
-        `(?:${ipv4Octet + possiblyDefanged(String.raw`\.`)}){3}` +
-        ipv4Octet +
-        ")",
-    "g",
-);
-
-const IPV6_REGEX = new RegExp(
-    `((?:${ipv6Octet}${possiblyDefanged(":")}){7}${ipv6Octet}|` +
-        `(?:(?:${ipv6Octet}${possiblyDefanged(":")})*${ipv6Octet})?${possiblyDefanged("::")}` +
-        `(?:(?:${ipv6Octet}${possiblyDefanged(":")})*${ipv6Octet})?)`,
-    "gi",
-);
-
-const DOMAIN_REGEX = new RegExp(
-    String.raw`(?:%[0-9a-f]{2})?((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?` +
-        possiblyDefanged(String.raw`\.`) +
-        String.raw`)+[a-z][a-z0-9-]{0,61}[a-z](?=\.?)\b)`,
-    "gi",
-);
+const IPV4_REGEX = new RegExp(DEFANGED_IPV4_PATTERN, "g");
+const IPV6_REGEX = new RegExp(DEFANGED_IPV6_PATTERN, "gi");
+const DOMAIN_REGEX = new RegExp(DEFANGED_DOMAIN_PATTERN, "gi");
 
 const hashStart = "(?:%[0-9a-f]{2})?(?<=^|[^a-f0-9]+)";
 const hashEnd = "(?=$|[^a-f0-9]+)";

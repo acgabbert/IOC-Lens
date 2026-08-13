@@ -1,19 +1,22 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import test from "node:test";
-import { URL } from "node:url";
-import ts from "typescript";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const testDirectory = dirname(fileURLToPath(import.meta.url));
 
 async function importTypeScript(relativePath) {
-    const source = await readFile(new URL(relativePath, import.meta.url), "utf8");
-    const { outputText } = ts.transpileModule(source, {
-        compilerOptions: {
-            module: ts.ModuleKind.ESNext,
-            target: ts.ScriptTarget.ES2022,
-        },
+    const result = await build({
+        entryPoints: [resolve(testDirectory, relativePath)],
+        bundle: true,
+        format: "esm",
+        platform: "node",
+        target: "node20",
+        write: false,
     });
-    const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+    const moduleUrl = `data:text/javascript;base64,${Buffer.from(result.outputFiles[0].contents).toString("base64")}`;
     return import(moduleUrl);
 }
 
@@ -27,6 +30,7 @@ const {
 } = await importTypeScript("../src/ioc.ts");
 
 const { normalizeSettings, reconcileSearchSites } = await importTypeScript("../src/settingsData.ts");
+const { defangText } = await importTypeScript("../src/iocUtils.ts");
 
 test("finds fanged and commonly defanged IPv4 indicators", () => {
     assert.deepEqual(
@@ -54,6 +58,18 @@ test("finds compressed IPv6 indicators", () => {
 test("refangs and normalizes indicators", () => {
     assert.equal(refangIndicator("HXXPS[://]EXAMPLE[.]COM"), "https://example.com");
     assert.equal(refangIndicator("USER[at]EXAMPLE(.)COM"), "user@example.com");
+});
+
+test("defangs indicators using the shared canonical patterns", () => {
+    assert.equal(
+        defangText("Visit https://example.com with 8.8.8.8 or 2001:db8::1"),
+        "Visit hxxps[://]example[.]com with 8[.]8[.]8[.]8 or 2001[:]db8[::]1",
+    );
+});
+
+test("defanging is idempotent", () => {
+    const defanged = "hxxps[://]example[.]com 8[.]8[.]8[.]8 2001[:]db8[::]1";
+    assert.equal(defangText(defanged), defanged);
 });
 
 test("classifies RFC 1918 and loopback IPv4 ranges after refanging", () => {
