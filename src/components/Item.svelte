@@ -1,6 +1,6 @@
 <script lang="ts">
     import Button from "./Button.svelte";
-	import type { SearchSite } from "../sites";
+	import { buildSearchUrl, type SearchSite } from "../sites";
 
     export let item: string;
     export let buttons: SearchSite[] | undefined;
@@ -12,7 +12,7 @@
 {#if buttons}
 <div class="grid-container">
     {#each buttons as button}
-        <Button href={button.site.replace('%s', item)} title={button.name} content={button.shortName}/>
+        <Button href={buildSearchUrl(button, item)} title={button.name} content={button.shortName}/>
     {/each}
 </div>
 {/if}

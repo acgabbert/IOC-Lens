@@ -31,6 +31,22 @@ export interface SearchSite {
     enabled: boolean
 }
 
+export function buildSearchUrl(site: SearchSite, indicator: string): string {
+    return site.site.replace('%s', encodeURIComponent(indicator));
+}
+
+export function buildMultisearchUrl(site: SearchSite, indicators: string[]): string | null {
+    if (!site.multisearch || indicators.length < 2) return null;
+
+    const [first, ...remaining] = [...new Set(indicators)];
+    if (!first || remaining.length === 0) return null;
+
+    const separator = site.separator ?? '%20';
+    return buildSearchUrl(site, first) + remaining
+        .map(indicator => separator + encodeURIComponent(indicator))
+        .join('');
+}
+
 export const greynoiseSearch: SearchSite = {
     name: 'GreyNoise',
     shortName: 'GN',

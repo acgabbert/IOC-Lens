@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
+import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -31,6 +32,7 @@ const {
 
 const { normalizeSettings, reconcileSearchSites } = await importTypeScript("../src/settingsData.ts");
 const { defangText } = await importTypeScript("../src/iocUtils.ts");
+const { buildMultisearchUrl, buildSearchUrl } = await importTypeScript("../src/sites.ts");
 
 test("finds fanged and commonly defanged IPv4 indicators", () => {
     assert.deepEqual(
@@ -150,4 +152,88 @@ test("search-site reconciliation adds defaults while preserving user choices", (
         searchSites: [stored[0], added],
         changed: true,
     });
+});
+
+test("search URLs encode indicators as a single URL component", () => {
+    const site = defaultSettings.searchSites[0];
+    assert.equal(
+        buildSearchUrl(site, "2001:db8::1 & source=note"),
+        "https://example.com/2001%3Adb8%3A%3A1%20%26%20source%3Dnote",
+    );
+});
+
+test("multisearch URLs encode and deduplicate indicators", () => {
+    const site = {
+        ...defaultSettings.searchSites[0],
+        multisearch: true,
+        separator: "%20",
+    };
+    assert.equal(
+        buildMultisearchUrl(site, ["example.com", "2001:db8::1", "example.com"]),
+        "https://example.com/example.com%202001%3Adb8%3A%3A1",
+    );
+    assert.equal(buildMultisearchUrl(site, ["example.com"]), null);
+});
+
+test("settings migration accepts legacy optional fields and clones stored data", () => {
+    const legacySite = {
+        name: "Legacy",
+        shortName: "OLD",
+        site: "https://example.com/%s",
+        ip: true,
+        hash: true,
+        domain: true,
+        multisearch: false,
+        enabled: false,
+    };
+    const stored = {
+        validTld: [" com ", "COM", "org"],
+        searchSites: [legacySite],
+        sha256Enabled: false,
+        md5Enabled: true,
+        removedSetting: "ignored",
+    };
+
+    const normalized = normalizeSettings(stored, defaultSettings);
+    assert.deepEqual(normalized, {
+        validTld: ["COM", "ORG"],
+        searchSites: [legacySite],
+        sha256Enabled: false,
+        md5Enabled: true,
+    });
+    normalized.searchSites[0].enabled = true;
+    assert.equal(legacySite.enabled, false);
+});
+
+test("settings migration refreshes stale site definitions while preserving choices", () => {
+    const storedSite = {
+        ...defaultSettings.searchSites[0],
+        site: "https://old.example/%s",
+        enabled: false,
+    };
+    const currentSite = {
+        ...defaultSettings.searchSites[0],
+        site: "https://new.example/%s",
+        ipv6: true,
+        description: "Current definition",
+    };
+
+    assert.deepEqual(reconcileSearchSites([storedSite], [currentSite]), {
+        searchSites: [{ ...currentSite, enabled: false }],
+        changed: true,
+    });
+});
+
+test("release smoke-test fixture contains only the expected indicators", () => {
+    const fixture = readFileSync(resolve(testDirectory, "fixtures/smoke-test.md"), "utf8");
+    assert.deepEqual(findIndicators(fixture, "IPv4"), ["192.0.2.10", "10[.]20[.]30[.]40"]);
+    assert.deepEqual(findIndicators(fixture, "IPv6"), ["2001:db8::1"]);
+    assert.deepEqual(
+        validateDomains(findIndicators(fixture, "Domain"), ["COM"]),
+        ["example[.]com"],
+    );
+    assert.deepEqual(findIndicators(fixture, "MD5"), ["d41d8cd98f00b204e9800998ecf8427e"]);
+    assert.deepEqual(findIndicators(fixture, "SHA256"), [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ]);
 });
