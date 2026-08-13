@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ParsedIndicators } from "obsidian-cyber-utils";
+	import type { ParsedIndicators } from "../sites";
     
     import Item from "./Item.svelte";
 	import Button from "./Button.svelte";

@@ -1,6 +1,6 @@
 <script lang="ts">
     import Button from "./Button.svelte";
-	import type { SearchSite } from "obsidian-cyber-utils";
+	import type { SearchSite } from "../sites";
 
     export let item: string;
     export let buttons: SearchSite[] | undefined;

@@ -1,20 +1,26 @@
-import { MarkdownView, type Editor } from 'obsidian';
-import { CyberPlugin, getValidTld } from 'obsidian-cyber-utils';
+import { Events, MarkdownView, Plugin, type Editor, type EventRef } from 'obsidian';
 
 import { IOC_LENS_DEFAULT_SETTINGS, type IocLensSettings, IocLensSettingTab } from 'src/settings';
 import { DEFAULT_VIEW_TYPE, IndicatorSidebar } from 'src/iocLensView';
 import { defangText } from 'src/iocUtils';
 import { defaultSites } from 'src/sites';
+import { fetchValidTlds } from 'src/tlds';
 
-export default class IocLens extends CyberPlugin {
-	declare settings: IocLensSettings;
+export default class IocLens extends Plugin {
+    settings: IocLensSettings;
+    validTld: string[] | null = null;
+    private readonly events = new Events();
 
 	async onload() {
 		await this.loadSettings();
 		
 		// retrieve valid top-level domain identifiers from IANA
-		this.validTld = await getValidTld();
-		if (this.validTld) this.settings.validTld = this.validTld;
+		const fetchedTlds = await fetchValidTlds();
+		this.validTld = fetchedTlds ?? this.settings.validTld;
+		if (fetchedTlds) {
+			this.settings.validTld = fetchedTlds;
+			await this.saveSettings();
+		}
 		
 		this.registerView(DEFAULT_VIEW_TYPE, (leaf) => new IndicatorSidebar(leaf, this));
 
@@ -63,7 +69,16 @@ export default class IocLens extends CyberPlugin {
 	}
 
 	async saveSettings() {
-		await super.saveSettings();
+		await this.saveData(this.settings);
+		this.events.trigger('settings-change');
+	}
+
+	onSettingsChange(callback: () => void): EventRef {
+		return this.events.on('settings-change', callback);
+	}
+
+	async activateView(type: string): Promise<void> {
+		await this.app.workspace.ensureSideLeaf(type, 'right', { active: true });
 	}
 
 	async updateSites() {

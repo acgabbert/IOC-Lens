@@ -1,22 +1,17 @@
 import { ItemView, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
-import { isLocalIpv4, Matcher, type ParsedIndicators, refangIoc, removeArrayDuplicates, validateDomains } from "obsidian-cyber-utils";
 
 import Sidebar from "./components/Sidebar.svelte";
 import type IocLens from "main";
-import type { SearchSite } from "./sites";
+import { findIndicators, isPrivateIpv4, refangIndicator, uniqueIndicators, validateDomains } from "./ioc";
+import type { ParsedIndicators, SearchSite } from "./sites";
 
 export const DEFAULT_VIEW_TYPE = "ioc-lens-view";
 
 export class IndicatorSidebar extends ItemView {
     sidebar: Sidebar | undefined;
-    sidebarProps: {indicators: ParsedIndicators[]};
     iocs: ParsedIndicators[] | undefined;
     plugin: IocLens | undefined;
     splitLocalIp: boolean;
-
-    ipExclusions: string[] | undefined;
-    domainExclusions: string[] | undefined;
-    hashExclusions: string[] | undefined;
 
     constructor(leaf: WorkspaceLeaf, plugin: IocLens) {
         super(leaf);
@@ -40,7 +35,7 @@ export class IndicatorSidebar extends ItemView {
     registerSettingsListener() {
         if (!this.plugin) return;
         this.registerEvent(
-            this.plugin.on('settings-change', () => {
+            this.plugin.onSettingsChange(() => {
                 const file = this.app.workspace.getActiveFile();
                 if (!file) return;
                 void this.parseIndicators(file);
@@ -84,12 +79,12 @@ export class IndicatorSidebar extends ItemView {
         this.iocs = [];
         const ips: ParsedIndicators = {
             title: "IPs",
-            items: Matcher.findAll(fileContent, 'IPv4'),
+            items: findIndicators(fileContent, 'IPv4'),
             sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ip)
         }
         const domains: ParsedIndicators = {
             title: "Domains",
-            items: Matcher.findAll(fileContent, 'Domain'),
+            items: findIndicators(fileContent, 'Domain'),
             sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.domain)
         }
         let sha256Hashes: ParsedIndicators | null = null;
@@ -97,14 +92,14 @@ export class IndicatorSidebar extends ItemView {
         if (this.plugin.settings.sha256Enabled) {
             sha256Hashes = {
                 title: "Hashes (SHA256)",
-                items: Matcher.findAll(fileContent, 'SHA256'),
+                items: findIndicators(fileContent, 'SHA256'),
                 sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.hash)
             }
         }
         if (this.plugin.settings.md5Enabled) {
             md5Hashes = {
                 title: "Hashes (MD5)",
-                items: Matcher.findAll(fileContent, 'MD5'),
+                items: findIndicators(fileContent, 'MD5'),
                 sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.hash)
             }
         }
@@ -115,7 +110,7 @@ export class IndicatorSidebar extends ItemView {
         }
         const ipv6: ParsedIndicators = {
             title: "IPv6",
-            items: Matcher.findAll(fileContent, 'IPv6'),
+            items: findIndicators(fileContent, 'IPv6'),
             sites: this.plugin?.settings?.searchSites.filter((x: SearchSite) => x.enabled && x.ipv6)
         }
         if (this.plugin?.validTld) 
@@ -124,7 +119,7 @@ export class IndicatorSidebar extends ItemView {
             ips.title = "IPs (Public)";
             for (let i = 0; i < ips.items.length; i++) {
                 const item = ips.items[i];
-                if(isLocalIpv4(item)) {
+                if(isPrivateIpv4(item)) {
                     ips.items.splice(i, 1);
                     i--;
                     privateIps.items.push(item);
@@ -138,35 +133,12 @@ export class IndicatorSidebar extends ItemView {
         if (md5Hashes) this.iocs.push(md5Hashes);
         this.iocs.push(ipv6)
         this.refangIocs();
-        this.processExclusions();
-    }
-
-    processExclusions() {
-        this.iocs?.forEach(indicatorList => {
-            switch(indicatorList.title) {
-                case "IPs":
-                    this.ipExclusions?.forEach(ip => {
-                        if (indicatorList.items.includes(ip)) indicatorList.items.splice(indicatorList.items.indexOf(ip), 1);
-                    });
-                    break;
-                case "Domains":
-                    this.domainExclusions?.forEach(domain => {
-                        if (indicatorList.items.includes(domain)) indicatorList.items.splice(indicatorList.items.indexOf(domain), 1);
-                    });
-                    break;
-                case "Hashes":
-                    this.hashExclusions?.forEach(hash => {
-                        if (indicatorList.items.includes(hash)) indicatorList.items.splice(indicatorList.items.indexOf(hash), 1);
-                    });
-                    break;
-            }
-        });
     }
 
     private refangIocs() {
         this.iocs?.forEach((iocList, index, array) => {
-            iocList.items = iocList.items.map((x) => refangIoc(x));
-            iocList.items = removeArrayDuplicates(iocList.items);
+            iocList.items = iocList.items.map((x) => refangIndicator(x));
+            iocList.items = uniqueIndicators(iocList.items);
             array[index] = iocList;
         })
     }
@@ -193,7 +165,6 @@ export class IndicatorSidebar extends ItemView {
         if (this.sidebar) {
             this.sidebar.$destroy();
             this.sidebar = undefined;
-            this.plugin?.sidebarContainers?.delete(this.getViewType());
         }
     }
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ParsedIndicators } from "obsidian-cyber-utils";
+	import type { ParsedIndicators } from "../sites";
     import IocList from './IocList.svelte'
 	import { App, Modal } from "obsidian";
     

@@ -1,10 +1,11 @@
 import IocLens from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { type CyberPluginSettings } from "obsidian-cyber-utils";
 
 import { defaultSites, type SearchSite } from "./sites";
 
-export interface IocLensSettings extends CyberPluginSettings {
+export interface IocLensSettings {
+    validTld: string[],
+    searchSites: SearchSite[],
     sha256Enabled: boolean,
     md5Enabled: boolean
 }
