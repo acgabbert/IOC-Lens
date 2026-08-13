@@ -6,7 +6,7 @@ Thanks for helping improve IOC Lens.
 
 1. Install Node.js 20 or newer.
 2. Run `npm ci`.
-3. Run `npm run lint`, `npm test`, and `npm run build` before opening a pull request.
+3. Run `npm run check` before opening a pull request.
 
 For interactive development, run `npm run dev` and copy or link `main.js` and
 `manifest.json` into an Obsidian test vault under

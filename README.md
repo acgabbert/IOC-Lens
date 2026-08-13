@@ -29,6 +29,19 @@ Security considerations:
 - IOCs are displayed as plaintext in the sidebar - they are never clickable links
 - All interaction with IOCs is intentional and requires explicit user action
 
+## Privacy and network access
+
+IOC Lens processes note contents locally and does not transmit note contents,
+indicators, or usage data. On startup, it requests the public top-level domain
+list from `data.iana.org` so that extracted domains can be validated. The list
+is cached in the plugin's Obsidian settings for offline use. If the request
+fails, IOC Lens continues to operate using the cached list when available and
+otherwise displays domain candidates without TLD validation.
+
+Opening a search pivot is always an explicit user action. That action sends the
+selected indicator to the search provider named on the button, subject to that
+provider's own privacy policy.
+
 ## Tips:
 Per the guidance in [Obsidian's Developer Documentation](https://docs.obsidian.md/Reference/TypeScript+API/Command/hotkeys), a default hotkey has not been set for any IOC Lens functions. However, you can bind commands to hot keys via the Obsidian settings ("Hotkeys" section). Example:
 ![hotkey-example](https://raw.githubusercontent.com/acgabbert/ioc-lens/refs/heads/main/resources/hotkey-example.png)
@@ -46,3 +59,9 @@ IOC Lens currently supports pivots to the following resources/search engines. Pi
 - [URLScan](https://urlscan.io/search/)
 - [VirusTotal](https://virustotal.com)
 - [GreyNoise](https://viz.greynoise.io)
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local development and pull request
+guidance. Maintainers should follow [RELEASING.md](RELEASING.md) for the version,
+smoke-test, and publishing checklist.
