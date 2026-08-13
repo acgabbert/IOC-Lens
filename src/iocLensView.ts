@@ -12,6 +12,7 @@ export class IndicatorSidebar extends ItemView {
     iocs: ParsedIndicators[] | undefined;
     plugin: IocLens | undefined;
     splitLocalIp: boolean;
+    private parseGeneration = 0;
 
     constructor(leaf: WorkspaceLeaf, plugin: IocLens) {
         super(leaf);
@@ -73,10 +74,10 @@ export class IndicatorSidebar extends ItemView {
         }
     }
 
-    async getMatches(file: TFile) {
+    async getMatches(file: TFile): Promise<ParsedIndicators[] | undefined> {
         if (!this.plugin) return;
         const fileContent = await this.plugin.app.vault.cachedRead(file);
-        this.iocs = [];
+        const iocs: ParsedIndicators[] = [];
         const ips: ParsedIndicators = {
             title: "IPs",
             items: findIndicators(fileContent, 'IPv4'),
@@ -126,25 +127,32 @@ export class IndicatorSidebar extends ItemView {
                 }
             }
         }
-        this.iocs.push(ips);
-        if (this.splitLocalIp) this.iocs.push(privateIps);
-        this.iocs.push(domains);
-        if (sha256Hashes) this.iocs.push(sha256Hashes);
-        if (md5Hashes) this.iocs.push(md5Hashes);
-        this.iocs.push(ipv6)
-        this.refangIocs();
+        iocs.push(ips);
+        if (this.splitLocalIp) iocs.push(privateIps);
+        iocs.push(domains);
+        if (sha256Hashes) iocs.push(sha256Hashes);
+        if (md5Hashes) iocs.push(md5Hashes);
+        iocs.push(ipv6);
+        return this.refangIocs(iocs);
     }
 
-    private refangIocs() {
-        this.iocs?.forEach((iocList, index, array) => {
-            iocList.items = iocList.items.map((x) => refangIndicator(x));
-            iocList.items = uniqueIndicators(iocList.items);
-            array[index] = iocList;
-        })
+    private refangIocs(iocs: ParsedIndicators[]): ParsedIndicators[] {
+        return iocs.map(iocList => ({
+            ...iocList,
+            items: uniqueIndicators(iocList.items.map(item => refangIndicator(item))),
+        }));
     }
 
     async parseIndicators(file: TFile) {
-        await this.getMatches(file);
+        const generation = ++this.parseGeneration;
+        const iocs = await this.getMatches(file);
+        if (
+            generation !== this.parseGeneration ||
+            file !== this.app.workspace.getActiveFile() ||
+            !iocs
+        ) return;
+
+        this.iocs = iocs;
         if (!this.sidebar && this.iocs && this.plugin) {
             this.sidebar = new Sidebar({
                 target: this.contentEl,
@@ -162,6 +170,7 @@ export class IndicatorSidebar extends ItemView {
     }
 
     async onClose() {
+        this.parseGeneration++;
         if (this.sidebar) {
             this.sidebar.$destroy();
             this.sidebar = undefined;
