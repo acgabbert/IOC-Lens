@@ -3,6 +3,7 @@
 
     import Item from "./Item.svelte";
 	import Button from "./Button.svelte";
+	import PivotRow from "./PivotRow.svelte";
 
     interface Props {
         indicatorList: ParsedIndicators;
@@ -34,7 +35,7 @@
         {/each}
     </div>
     {#if indicatorList.sites}
-    <div>
+    <PivotRow>
         {#each indicatorList.sites as site}
             {@const href = multisearchLinks.get(site.shortName)}
             {#if site.multisearch && href}
@@ -45,12 +46,13 @@
                 />
             {/if}
         {/each}
-    </div>
+    </PivotRow>
     {/if}
 </details>
 
 <style>
     .sidebar-container {
+        margin-bottom: var(--size-4-3, 12px);
         user-select: text;
         word-break: break-all;
         white-space: normal;

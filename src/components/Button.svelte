@@ -18,16 +18,15 @@
 <style>
 	.pivot-link {
 		display: inline-block;
-		padding: var(--size-4-1) var(--size-4-2);
-		border-radius: var(--radius-s);
+		padding: var(--size-2-3, 6px) var(--size-4-2, 8px);
+		border-radius: var(--radius-s, 4px);
 		background-color: var(--interactive-normal);
-		box-shadow: var(--shadow-s);
 		color: var(--text-normal);
-		font-size: var(--font-ui-smaller);
-		line-height: 1;
+		font-size: var(--font-ui-smaller, 12px);
+		line-height: 1.2;
 		text-decoration: none;
 		white-space: nowrap;
-		cursor: var(--cursor-link);
+		cursor: var(--cursor-link, pointer);
 	}
 
 	.pivot-link:hover {
