@@ -53,6 +53,12 @@
 </details>
 
 <style>
+    /* Obsidian's indentation guide runs past the last row of each group and adds
+       little here, since the categories are only one level deep. The indent stays. */
+    .tree-item-children {
+        border-left: none;
+    }
+
     /* The category header is a click target for expanding the group, so dragging
        across it should not select its text. Indicator values below stay selectable. */
     summary {

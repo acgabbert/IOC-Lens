@@ -23,7 +23,10 @@
 		margin-top: var(--size-2-2, 4px);
 	}
 
+	/* Outdented toward the category header, since it acts on the whole group
+	   rather than on the indicator directly above it. */
 	.pivot-row.standalone {
 		margin-top: var(--size-4-4, 16px);
+		margin-left: calc(-1 * var(--size-4-2, 8px));
 	}
 </style>
