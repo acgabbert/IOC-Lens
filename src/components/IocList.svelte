@@ -14,7 +14,7 @@
     // the user's own toggling of the <details> element on later updates. The each
     // block in Sidebar is keyed by title, so an instance never changes category.
     // svelte-ignore state_referenced_locally
-    const open = !indicatorList.title.contains("Private");
+    const open = !indicatorList.title.includes("Private");
 
     const multisearchLinks = $derived.by(() => {
         const links = new Map<string, string>();
@@ -24,14 +24,6 @@
         });
         return links;
     });
-
-    function getMultisearchLink(shortName: string): string {
-        const href = multisearchLinks.get(shortName);
-        if (href === undefined) {
-            throw new Error(`No multisearch link found for ${shortName}`);
-        }
-        return href;
-    }
 </script>
 
 <details class="sidebar-container tree-item" {open}>
@@ -42,11 +34,12 @@
         {/each}
     </div>
     {#if indicatorList.sites}
-    <div class="grid-container">
+    <div>
         {#each indicatorList.sites as site}
-            {#if site.multisearch && multisearchLinks.has(site.shortName)}
+            {@const href = multisearchLinks.get(site.shortName)}
+            {#if site.multisearch && href}
                 <Button
-                    href={getMultisearchLink(site.shortName)}
+                    {href}
                     title={`Search all - ${site.name}`}
                     content={`Search all - ${site.shortName}`}
                 />

@@ -44,6 +44,8 @@ const context = await esbuild.context({
 		esbuildSvelte({
 			compilerOptions: {
 				css: "injected",
+				// Legacy component syntax is a build error, not a silent fallback.
+				runes: true,
 			},
 			preprocess: sveltePreprocess()
 		})

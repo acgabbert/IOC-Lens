@@ -10,11 +10,11 @@
     const { item, buttons }: Props = $props();
 </script>
 
-<div class="sidebar-list-item tree-item-self">
+<div class="tree-item-self">
     <div class="tree-item-inner">{item}</div>
 </div>
 {#if buttons}
-<div class="grid-container">
+<div>
     {#each buttons as button}
         <Button href={buildSearchUrl(button, item)} title={button.name} content={button.shortName}/>
     {/each}
