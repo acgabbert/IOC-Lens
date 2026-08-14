@@ -51,6 +51,12 @@
 </details>
 
 <style>
+    /* The category header is a click target for expanding the group, so dragging
+       across it should not select its text. Indicator values below stay selectable. */
+    summary {
+        user-select: none;
+    }
+
     .sidebar-container {
         margin-bottom: var(--size-4-3, 12px);
         user-select: text;
