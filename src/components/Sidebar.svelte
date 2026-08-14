@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { ParsedIndicators } from "../sites";
     import IocList from './IocList.svelte'
-	import { App, Modal } from "obsidian";
-    
-    export let indicators: ParsedIndicators[];
+	import { Modal } from "obsidian";
 
-    $: hasIndicators = indicators.some(list => list.items.length > 0);
-    export let app: App;
+	import type { SidebarProps } from "./sidebarProps.svelte";
+
+    const { indicators, app }: SidebarProps = $props();
+
+    const hasIndicators = $derived(indicators.some(list => list.items.length > 0));
 
     function helpButton() {
         const helpModal = new Modal(app);
@@ -18,7 +18,7 @@
 
 <h4>IOC Lens</h4>
 {#if hasIndicators}
-    {#each indicators as indicatorList}
+    {#each indicators as indicatorList (indicatorList.title)}
         {#if indicatorList.items.length > 0}
             <IocList indicatorList={indicatorList}/>
         {/if}
@@ -30,7 +30,7 @@
 {/if}
 <button
     class="help-button"
-    on:click={helpButton}
+    onclick={helpButton}
 >
     ⓘ
 </button>

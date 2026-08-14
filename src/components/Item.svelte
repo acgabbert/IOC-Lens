@@ -2,8 +2,12 @@
     import Button from "./Button.svelte";
 	import { buildSearchUrl, type SearchSite } from "../sites";
 
-    export let item: string;
-    export let buttons: SearchSite[] | undefined;
+    interface Props {
+        item: string;
+        buttons: SearchSite[] | undefined;
+    }
+
+    const { item, buttons }: Props = $props();
 </script>
 
 <div class="sidebar-list-item tree-item-self">

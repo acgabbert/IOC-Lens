@@ -1,20 +1,29 @@
 <script lang="ts">
 	import { buildMultisearchUrl, type ParsedIndicators } from "../sites";
-    
+
     import Item from "./Item.svelte";
 	import Button from "./Button.svelte";
 
-    export let indicatorList: ParsedIndicators;
-    let multisearchLinks = new Map<string, string>();
-    let open = true;
-    if (indicatorList.title.contains("Private")) open = false;
-    $: {
-        multisearchLinks.clear();
+    interface Props {
+        indicatorList: ParsedIndicators;
+    }
+
+    const { indicatorList }: Props = $props();
+
+    // Only the initial value: this sets the default expansion, and must not fight
+    // the user's own toggling of the <details> element on later updates. The each
+    // block in Sidebar is keyed by title, so an instance never changes category.
+    // svelte-ignore state_referenced_locally
+    const open = !indicatorList.title.contains("Private");
+
+    const multisearchLinks = $derived.by(() => {
+        const links = new Map<string, string>();
         indicatorList.sites?.forEach((site) => {
             const url = buildMultisearchUrl(site, indicatorList.items);
-            if (url) multisearchLinks.set(site.shortName, url);
+            if (url) links.set(site.shortName, url);
         });
-    }
+        return links;
+    });
 
     function getMultisearchLink(shortName: string): string {
         const href = multisearchLinks.get(shortName);
@@ -36,7 +45,7 @@
     <div class="grid-container">
         {#each indicatorList.sites as site}
             {#if site.multisearch && multisearchLinks.has(site.shortName)}
-                <Button 
+                <Button
                     href={getMultisearchLink(site.shortName)}
                     title={`Search all - ${site.name}`}
                     content={`Search all - ${site.shortName}`}

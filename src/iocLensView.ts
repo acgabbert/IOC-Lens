@@ -1,6 +1,8 @@
 import { ItemView, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 
 import Sidebar from "./components/Sidebar.svelte";
+import { createSidebarProps, type SidebarProps } from "./components/sidebarProps.svelte";
 import type IocLens from "main";
 import { findIndicators, isPrivateIpv4, refangIndicator, uniqueIndicators, validateDomains } from "./ioc";
 import type { ParsedIndicators, SearchSite } from "./sites";
@@ -8,7 +10,8 @@ import type { ParsedIndicators, SearchSite } from "./sites";
 export const DEFAULT_VIEW_TYPE = "ioc-lens-view";
 
 export class IndicatorSidebar extends ItemView {
-    sidebar: Sidebar | undefined;
+    sidebar: Record<string, unknown> | undefined;
+    sidebarProps: SidebarProps | undefined;
     iocs: ParsedIndicators[] | undefined;
     plugin: IocLens | undefined;
     splitLocalIp: boolean;
@@ -154,26 +157,22 @@ export class IndicatorSidebar extends ItemView {
 
         this.iocs = iocs;
         if (!this.sidebar && this.iocs && this.plugin) {
-            this.sidebar = new Sidebar({
+            this.sidebarProps = createSidebarProps(this.plugin.app, this.iocs);
+            this.sidebar = mount(Sidebar, {
                 target: this.contentEl,
-                props: {
-                    indicators: this.iocs,
-                    app: this.plugin.app
-                }
+                props: this.sidebarProps
             });
-        } else if (this.plugin) {
-            this.sidebar?.$set({
-                indicators: this.iocs,
-                app: this.plugin.app
-            });
+        } else if (this.sidebarProps) {
+            this.sidebarProps.indicators = this.iocs;
         }
     }
 
     async onClose() {
         this.parseGeneration++;
         if (this.sidebar) {
-            this.sidebar.$destroy();
+            await unmount(this.sidebar);
             this.sidebar = undefined;
+            this.sidebarProps = undefined;
         }
     }
 }
