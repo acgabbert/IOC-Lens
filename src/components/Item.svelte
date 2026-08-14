@@ -32,7 +32,7 @@
     }
 
     .tree-item-inner {
-        margin-top: var(--size-4-2, 8px);
+        margin-top: var(--size-4-3, 12px);
         word-break: break-all;
         text-wrap: wrap;
         overflow: hidden;
