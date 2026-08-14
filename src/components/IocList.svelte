@@ -1,28 +1,30 @@
 <script lang="ts">
 	import { buildMultisearchUrl, type ParsedIndicators } from "../sites";
-    
+
     import Item from "./Item.svelte";
 	import Button from "./Button.svelte";
+	import PivotRow from "./PivotRow.svelte";
 
-    export let indicatorList: ParsedIndicators;
-    let multisearchLinks = new Map<string, string>();
-    let open = true;
-    if (indicatorList.title.contains("Private")) open = false;
-    $: {
-        multisearchLinks.clear();
+    interface Props {
+        indicatorList: ParsedIndicators;
+    }
+
+    const { indicatorList }: Props = $props();
+
+    // Only the initial value: this sets the default expansion, and must not fight
+    // the user's own toggling of the <details> element on later updates. The each
+    // block in Sidebar is keyed by title, so an instance never changes category.
+    // svelte-ignore state_referenced_locally
+    const open = !indicatorList.title.includes("Private");
+
+    const multisearchLinks = $derived.by(() => {
+        const links = new Map<string, string>();
         indicatorList.sites?.forEach((site) => {
             const url = buildMultisearchUrl(site, indicatorList.items);
-            if (url) multisearchLinks.set(site.shortName, url);
+            if (url) links.set(site.shortName, url);
         });
-    }
-
-    function getMultisearchLink(shortName: string): string {
-        const href = multisearchLinks.get(shortName);
-        if (href === undefined) {
-            throw new Error(`No multisearch link found for ${shortName}`);
-        }
-        return href;
-    }
+        return links;
+    });
 </script>
 
 <details class="sidebar-container tree-item" {open}>
@@ -31,24 +33,40 @@
         {#each indicatorList.items as item}
             <Item item={item} buttons={indicatorList.sites}/>
         {/each}
+        <!-- Inside tree-item-children so it picks up the same indent as the
+             per-indicator rows, rather than hanging off the panel's left edge. -->
+        {#if indicatorList.sites}
+        <PivotRow standalone>
+            {#each indicatorList.sites as site}
+                {@const href = multisearchLinks.get(site.shortName)}
+                {#if site.multisearch && href}
+                    <Button
+                        {href}
+                        title={`Search all - ${site.name}`}
+                        content={`Search all - ${site.shortName}`}
+                    />
+                {/if}
+            {/each}
+        </PivotRow>
+        {/if}
     </div>
-    {#if indicatorList.sites}
-    <div class="grid-container">
-        {#each indicatorList.sites as site}
-            {#if site.multisearch && multisearchLinks.has(site.shortName)}
-                <Button 
-                    href={getMultisearchLink(site.shortName)}
-                    title={`Search all - ${site.name}`}
-                    content={`Search all - ${site.shortName}`}
-                />
-            {/if}
-        {/each}
-    </div>
-    {/if}
 </details>
 
 <style>
+    /* Obsidian's indentation guide runs past the last row of each group and adds
+       little here, since the categories are only one level deep. The indent stays. */
+    .tree-item-children {
+        border-left: none;
+    }
+
+    /* The category header is a click target for expanding the group, so dragging
+       across it should not select its text. Indicator values below stay selectable. */
+    summary {
+        user-select: none;
+    }
+
     .sidebar-container {
+        margin-bottom: var(--size-4-3, 12px);
         user-select: text;
         word-break: break-all;
         white-space: normal;

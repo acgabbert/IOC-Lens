@@ -9,7 +9,7 @@ export async function fetchValidTlds(): Promise<string[] | null> {
         const response = await requestUrl(IANA_TLD_URL);
         return parseTldList(response.text);
     } catch (error) {
-        globalThis.console.error("Failed to retrieve the IANA top-level domain list", error);
+        console.error("Failed to retrieve the IANA top-level domain list", error);
         return null;
     }
 }

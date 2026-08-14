@@ -1,24 +1,38 @@
 <script lang="ts">
     import Button from "./Button.svelte";
+    import PivotRow from "./PivotRow.svelte";
 	import { buildSearchUrl, type SearchSite } from "../sites";
 
-    export let item: string;
-    export let buttons: SearchSite[] | undefined;
+    interface Props {
+        item: string;
+        buttons: SearchSite[] | undefined;
+    }
+
+    const { item, buttons }: Props = $props();
 </script>
 
-<div class="sidebar-list-item tree-item-self">
+<div class="tree-item-self">
     <div class="tree-item-inner">{item}</div>
 </div>
 {#if buttons}
-<div class="grid-container">
+<PivotRow>
     {#each buttons as button}
         <Button href={buildSearchUrl(button, item)} title={button.name} content={button.shortName}/>
     {/each}
-</div>
+</PivotRow>
 {/if}
 
 <style>
+    /* Obsidian indents tree-item-self, which would push the indicator label
+       further right than the pivot buttons that belong to it. Both physical and
+       logical properties, since either could be what the theme sets. */
+    .tree-item-self {
+        padding-left: 0;
+        padding-inline-start: 0;
+    }
+
     .tree-item-inner {
+        margin-top: var(--size-4-3, 12px);
         word-break: break-all;
         text-wrap: wrap;
         overflow: hidden;
