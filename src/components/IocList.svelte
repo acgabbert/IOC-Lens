@@ -33,21 +33,23 @@
         {#each indicatorList.items as item}
             <Item item={item} buttons={indicatorList.sites}/>
         {/each}
+        <!-- Inside tree-item-children so it picks up the same indent as the
+             per-indicator rows, rather than hanging off the panel's left edge. -->
+        {#if indicatorList.sites}
+        <PivotRow>
+            {#each indicatorList.sites as site}
+                {@const href = multisearchLinks.get(site.shortName)}
+                {#if site.multisearch && href}
+                    <Button
+                        {href}
+                        title={`Search all - ${site.name}`}
+                        content={`Search all - ${site.shortName}`}
+                    />
+                {/if}
+            {/each}
+        </PivotRow>
+        {/if}
     </div>
-    {#if indicatorList.sites}
-    <PivotRow>
-        {#each indicatorList.sites as site}
-            {@const href = multisearchLinks.get(site.shortName)}
-            {#if site.multisearch && href}
-                <Button
-                    {href}
-                    title={`Search all - ${site.name}`}
-                    content={`Search all - ${site.shortName}`}
-                />
-            {/if}
-        {/each}
-    </PivotRow>
-    {/if}
 </details>
 
 <style>

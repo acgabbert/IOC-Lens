@@ -23,6 +23,14 @@
 {/if}
 
 <style>
+    /* Obsidian indents tree-item-self, which would push the indicator label
+       further right than the pivot buttons that belong to it. Both physical and
+       logical properties, since either could be what the theme sets. */
+    .tree-item-self {
+        padding-left: 0;
+        padding-inline-start: 0;
+    }
+
     .tree-item-inner {
         margin-top: var(--size-4-2, 8px);
         word-break: break-all;
